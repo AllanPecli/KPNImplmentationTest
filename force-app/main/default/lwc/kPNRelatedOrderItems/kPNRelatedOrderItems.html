@@ -1,10 +1,16 @@
 <template>
-    <div style="height: 500px;">
-        <lightning-datatable
-                key-field="id"
-                data={allOrderItems}
-                columns={columns}
-                hide-checkbox-column>
-        </lightning-datatable>
-    </div>    
+    <lightning-layout>
+        <lightning-layout-item padding="around-small">
+            <div class="custom-box slds-box slds-p-around_medium slds-text-align_center">
+                <lightning-card  variant="Narrow"  title="KPN Order Items" icon-name="standard:products">
+                    <lightning-datatable
+                            key-field="id"
+                            data={allOrderItems}
+                            columns={columns}
+                            hide-checkbox-column>
+                    </lightning-datatable>
+                </lightning-card>
+            </div>
+        </lightning-layout-item>
+    </lightning-layout> 
 </template>

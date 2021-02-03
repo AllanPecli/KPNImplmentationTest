@@ -1,18 +1,22 @@
 <template>
-    <lightning-card title="KPN Orderable Products" icon-name="custom:custom63">
-        <div class="slds-m-around_medium">
-            <template if:true={PricebookEntry.data}>
-                <lightning-datatable
-                    key-field="Id"
-                    data={PricebookEntry.data}
-                    columns={columns}
-                    onsave={handleSave}
-                    draft-values={draftValues}>
-                </lightning-datatable>
-            </template>
-            <template if:true={PricebookEntry.error}>
-                <!-- handle Apex error -->
-            </template>
-        </div>
-    </lightning-card>
+    <lightning-layout>
+        <lightning-layout-item padding="around-small">
+            <div class="custom-box slds-box slds-p-around_medium slds-text-align_center">
+                <lightning-card  variant="Narrow"  title="KPN Orderable Products" icon-name="standard:products">
+                    <div slot="actions">
+                        <lightning-button variant="brand" onclick={handleClick} icon-name="utility:add" label="Add Product(s) to Order" title="Primary action" class="slds-m-left_x-small" disabled={showButton}></lightning-button>
+                    </div>
+                    <div style="height: 300px;" class="slds-border_left slds-border_right slds-border_top">
+                        <lightning-datatable
+                                key-field="id"
+                                data={products.data}
+                                columns={columns}
+                                onrowselection={handleSelectedRows}
+                                >
+                        </lightning-datatable>
+                    </div>
+                </lightning-card>
+            </div>
+        </lightning-layout-item>
+    </lightning-layout>
 </template>

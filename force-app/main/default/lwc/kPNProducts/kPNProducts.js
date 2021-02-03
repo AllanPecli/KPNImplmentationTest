@@ -1,58 +1,78 @@
-import { LightningElement, wire, api } from 'lwc';
-import getProducts from '@salesforce/apex/KPN_LWCProductController.getProducts';
-import { refreshApex } from '@salesforce/apex';
-import { updateRecord } from 'lightning/uiRecordApi';
+import { LightningElement, wire, api, track } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent'
+import getProductList from '@salesforce/apex/KPN_LWCProductController.getProducts';
+import setOrderItens from '@salesforce/apex/KPN_LWCProductController.setOrderItens';
+// Import message service features required for publishing and the message channel
+import { publish, MessageContext } from 'lightning/messageService';
+// Importing created message.
+import orderItemRefresh from '@salesforce/messageChannel/orderItemRefresh__c';
 
-import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import NAME_FIELD from '@salesforce/schema/PricebookEntry.Name';
-import UNITPRICE_FIELD from '@salesforce/schema/PricebookEntry.UnitPrice';
-
-
-const COLS = [
-    { label: 'Name', fieldName: 'Name', editable: false },
-    { label: 'List Price', fieldName: 'UnitPrice', editable: false }
+const actions = [
+    { label: 'Add Product to Order', name: 'show_details' }
 ];
-export default class DatatableUpdateExample extends LightningElement {
 
+const columns = [
+    { label: 'Name', fieldName: 'Name' },
+    { label: 'List Price', fieldName: 'UnitPrice' }
+];
+
+export default class ApexDatatableExample extends LightningElement {
     @api recordId;
-    columns = COLS;
-    draftValues = [];
+    error;
+    columns = columns;
 
-    @wire(getProducts,{})
-    PricebookEntry;
+     @wire(getProductList)
+    products;
 
-    handleSave(event) {
+    @wire(MessageContext)
+    messageContext;
+    
+    get showButton(){
+        return true;
+    }
 
-        const fields = {}; 
-        fields[NAME_FIELD.fieldApiName] = event.detail.draftValues[0].Name;
-        fields[UNITPRICE_FIELD.fieldApiName] = event.detail.draftValues[0].UnitPrice;
-
-        const recordInput = {fields};
-
-        updateRecord(recordInput)
-        .then(() => {
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Success',
-                    message: 'Product updated',
-                    variant: 'success'
-                })
-            );
-            // Display fresh data in the datatable
-            return refreshApex(this.PricebookEntry).then(() => {
-
-                // Clear all draft values in the datatable
-                this.draftValues = [];
-
+    handleClick() {
+        const selectedRows = this.template.querySelector('lightning-datatable').getSelectedRows();
+        var ids = [];
+        for(var i = 0; i < selectedRows.length; i++){
+            ids.push(selectedRows[i].Product2Id);
+        }
+        setOrderItens({orderId: this.recordId, products2Ids: ids}).then(()=>{
+            const event = new ShowToastEvent({
+                "title": "Success!",
+                "message": "Successfully added to the Order.",
+                "variant": "success",
             });
-        }).catch(error => {
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Error updating or reloading record',
-                    message: error.body.message,
-                    variant: 'error'
-                })
-            );
+            publish(this.messageContext, orderItemRefresh, {});
+            this.dispatchEvent(event);
+        }).catch(error=>{
+            const event = new ShowToastEvent({
+                "title": "Error!",
+                "message": "Oops! We get one error here!",
+                "variant": "error",
+            });
+        })
+    }
+
+    handleSelectedRows(event) {
+        const selectedRows = event.detail.selectedRows;
+        let test = this.template.querySelector('lightning-button');
+        if(event.detail.selectedRows.length > 0){
+            test.disabled = false;
+        }else{
+            test.disabled = true;
+        }
+    }
+
+    findRowIndexById(id) {
+        let ret = -1;
+        this.data.some((row, index) => {
+            if (row.id === id) {
+                ret = index;
+                return true;
+            }
+            return false;
         });
+        return ret;
     }
 }

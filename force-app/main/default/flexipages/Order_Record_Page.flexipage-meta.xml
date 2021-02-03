@@ -51,7 +51,12 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>orderableProductsList</componentName>
+                <componentName>kPNProducts</componentName>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentName>kPNRelatedOrderItems</componentName>
             </componentInstance>
         </itemInstances>
         <itemInstances>

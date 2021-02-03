@@ -2,7 +2,10 @@ import { LightningElement, wire, api, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent'
 import getProductList from '@salesforce/apex/KPN_LWCProductController.getProducts';
 import setOrderItens from '@salesforce/apex/KPN_LWCProductController.setOrderItens';
-
+// Import message service features required for publishing and the message channel
+import { publish, MessageContext } from 'lightning/messageService';
+// Importing created message.
+import orderItemRefresh from '@salesforce/messageChannel/orderItemRefresh__c';
 
 const actions = [
     { label: 'Add Product to Order', name: 'show_details' }
@@ -21,6 +24,9 @@ export default class ApexDatatableExample extends LightningElement {
      @wire(getProductList)
     products;
 
+    @wire(MessageContext)
+    messageContext;
+    
     get showButton(){
         return true;
     }
@@ -31,15 +37,21 @@ export default class ApexDatatableExample extends LightningElement {
         for(var i = 0; i < selectedRows.length; i++){
             ids.push(selectedRows[i].Product2Id);
         }
-        setOrderItens({orderId: this.recordId, products2Ids: ids});
-        const event = new ShowToastEvent({
-            "title": "Success!",
-            "message": "Successfully added to the Order.",
-            "variant": "success",
-        });
-        //this.wiredFeedElements = value;
-        this.dispatchEvent(event);
-        this.template.querySelector('c-k-p-n-related-order-items').wiredProducts();
+        setOrderItens({orderId: this.recordId, products2Ids: ids}).then(()=>{
+            const event = new ShowToastEvent({
+                "title": "Success!",
+                "message": "Successfully added to the Order.",
+                "variant": "success",
+            });
+            publish(this.messageContext, orderItemRefresh, {});
+            this.dispatchEvent(event);
+        }).catch(error=>{
+            const event = new ShowToastEvent({
+                "title": "Error!",
+                "message": "Oops! We get one error here!",
+                "variant": "error",
+            });
+        })
     }
 
     handleSelectedRows(event) {
