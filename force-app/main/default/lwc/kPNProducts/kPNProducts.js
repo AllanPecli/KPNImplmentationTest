@@ -2,6 +2,8 @@ import { LightningElement, wire, api, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent'
 import getProductList from '@salesforce/apex/KPN_LWCProductController.getProducts';
 import setOrderItens from '@salesforce/apex/KPN_LWCProductController.setOrderItens';
+import successMessage from '@salesforce/label/c.SuccessMessage';
+import errorMessage from '@salesforce/label/c.ErrorMessage';
 // Import message service features required for publishing and the message channel
 import { publish, MessageContext } from 'lightning/messageService';
 // Importing created message.
@@ -21,7 +23,7 @@ export default class ApexDatatableExample extends LightningElement {
     error;
     columns = columns;
 
-     @wire(getProductList)
+    @wire(getProductList)
     products;
 
     @wire(MessageContext)
@@ -40,7 +42,7 @@ export default class ApexDatatableExample extends LightningElement {
         setOrderItens({orderId: this.recordId, products2Ids: ids}).then(()=>{
             const event = new ShowToastEvent({
                 "title": "Success!",
-                "message": "Successfully added to the Order.",
+                "message": successMessage,
                 "variant": "success",
             });
             publish(this.messageContext, orderItemRefresh, {});
@@ -48,7 +50,7 @@ export default class ApexDatatableExample extends LightningElement {
         }).catch(error=>{
             const event = new ShowToastEvent({
                 "title": "Error!",
-                "message": "Oops! We get one error here!",
+                "message": errorMessage,
                 "variant": "error",
             });
         })

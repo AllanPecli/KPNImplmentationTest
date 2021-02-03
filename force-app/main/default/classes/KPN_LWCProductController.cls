@@ -1,4 +1,18 @@
+/********************************************************************************
+* @author        Allan Pecli
+* @date          03/02/2021
+* @description   LWC Controller to get called.
+***********************************************************************************/
 public with sharing class KPN_LWCProductController {
+
+    /********************************************************************************
+    * @author        Allan Pecli
+    * @date          03/02/2021
+    * @description   Aura method responsible to return all the Active PricebookEntries
+    * for a Standard Pricebook2. I could filter taking in consideration the 
+    * Order Pricebook as well, but I'm considering that we're only using the 
+    * Standard Pricebook
+    ***********************************************************************************/
     @AuraEnabled(cacheable=true)
     public static List<PricebookEntry> getProducts() {
         return [
@@ -8,8 +22,16 @@ public with sharing class KPN_LWCProductController {
         ];
     }
     
+    /********************************************************************************
+    * @author        Allan Pecli
+    * @date          03/02/2021
+    * @description   Aura method responsible to create the Order Items records.
+    * We could use the LWC recod creation as well to deal with this, 
+    * according to the following documentation:
+    * https://developer.salesforce.com/docs/component-library/documentation/en/lwc/data_salesforce_write
+    ***********************************************************************************/
     @AuraEnabled
-    public static List<OrderItem> setOrderItens(String orderId, List<Id> products2Ids) {
+    public static Void setOrderItens(String orderId, List<Id> products2Ids) {
         List<OrderItem> lstOrderItemsToInteract = New List<OrderItem>();
         Map<String,OrderItem> mapOrderItemQuantity = New Map<String,OrderItem>();
         Map<String,PricebookEntry> mapProductUnityPrice = New Map<String,PricebookEntry>();
@@ -43,6 +65,5 @@ public with sharing class KPN_LWCProductController {
         if(!lstOrderItemsToInteract.isEmpty()){
             Database.Upsert(lstOrderItemsToInteract);
         }
-        Return [Select ID, Product2.Name, UnitPrice, Quantity, TotalPrice From OrderItem where OrderId =: orderId];
     }
 }
