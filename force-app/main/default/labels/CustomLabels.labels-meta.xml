@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>ErrorMessage</fullName>
+        <categories>StatusMessage</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ErrorMessage</shortDescription>
+        <value>Oops! We get one error here!</value>
+    </labels>
+    <labels>
+        <fullName>SuccessMessage</fullName>
+        <categories>StatusMessage</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>SuccessMessage</shortDescription>
+        <value>Successfully added to the Order.</value>
+    </labels>
+</CustomLabels>
